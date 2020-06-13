@@ -1,0 +1,61 @@
+---
+title: "Heatmap and Hierarchical Clustering"
+author: "Yiran Qin"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+```{r}
+# import libraries for heatmap and correlation
+library(plotly)
+library(heatmaply)
+library(ggcorrplot)
+library(quantmod)
+library(magrittr)
+```
+
+```{r}
+start <- as.Date("2020-02-01")
+end <- as.Date("2020-06-01")
+getSymbols("FB", src = "yahoo", from = start, to = end)
+```
+
+```{r}
+getSymbols(c("BA", "GOOG", "AMZN"), src = "yahoo", from = start, to = end)
+```
+
+```{r}
+stocks <- as.xts(data.frame(FB = FB[, "FB.Close"], BA = BA[, "BA.Close"], GOOG = GOOG[, "GOOG.Close"], AMZN = AMZN[, "AMZN.Close"]))
+```
+
+```{r}
+data3 <- as.matrix(stocks)
+```
+
+```{r}
+heatmap(data3)
+```
+```{r}
+
+heatmaply_cor(
+  cor(stocks),
+  title = "Heatmap and Hierarchical Clustering",
+  xlab = "Variables",
+  ylab = "Features",
+  k_col = 2,
+  k_row = 2   
+)
+```
+
+Example with the simple 'mtcars' dataset.
+
+```{r}
+data2 <- as.matrix(mtcars)
+```
+
+```{r}
+heatmap(data2)
+```
+
+
