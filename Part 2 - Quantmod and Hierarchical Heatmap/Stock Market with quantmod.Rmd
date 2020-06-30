@@ -1,0 +1,81 @@
+---
+title: "Stock Market with quantmod"
+author: "Yiran Qin"
+output:
+  html_notebook: default
+  pdf_document: default
+---
+
+For this R Notebook, I will follow the tutorial and create a visualization plot for Facebook, and we are going to compare the stock prices change for few other companies.
+
+```{r}
+library(quantmod)
+library(magrittr)
+```
+
+```{r}
+start <- as.Date("2020-02-01")
+end <- as.Date("2020-06-01")
+getSymbols("FB", src = "yahoo", from = start, to = end)
+```
+
+```{r}
+class(FB)
+```
+
+```{r}
+head(FB)
+```
+
+Next we need to visualize the dataset
+
+```{r}
+plot(FB[, "FB.Close"], main = "FB")
+```
+
+Scatter plot is fine but financial data is often plotted by a Japanese candlestick plot, here we go:
+
+```{r}
+candleChart(FB, up.col = "green", dn.col = "blue", theme = "white")
+```
+Then we can compare with other famous companies in the US. For instance, Boeing, Google and Amazon.
+
+```{r}
+getSymbols(c("BA", "GOOG", "AMZN"), src = "yahoo", from = start, to = end)
+```
+
+```{r}
+stocks <- as.xts(data.frame(FB = FB[, "FB.Close"], BA = BA[, "BA.Close"], GOOG = GOOG[, "GOOG.Close"], AMZN = AMZN[, "AMZN.Close"]))
+```
+
+
+```{r}
+head(stocks)
+```
+
+```{r}
+plot(as.zoo(stocks[, c("FB.Close", "BA.Close")]), screens = 1, lty = 1:2, 
+    xlab = "Date", ylab = "Price")
+par(new = TRUE)
+plot(as.zoo(stocks[, "GOOG.Close"]), screens = 1, lty = 3, xaxt = "n", yaxt = "n", 
+    xlab = "", ylab = "")
+plot(as.zoo(stocks[, "AMZN.Close"]), screens = 1, lty = 3, xaxt = "n", yaxt = "n", 
+    xlab = "", ylab = "")
+axis(4)
+mtext("Price", side = 4, line = 3)
+legend("topleft", c("FB (left)", "BA (left)", "GOOG", "AMZN"), lty = 1:3, cex = 0.5)
+```
+Due to Google's stock prices are way too higher than others, so R creates another graph for Google.
+
+```{r}
+stock_return = apply(stocks, 1, function(x) {x / stocks[1,]}) %>% 
+                                    t %>% as.xts
+
+head(stock_return)
+```
+
+```{r}
+plot(as.zoo(stock_return), screens = 1, lty = 1:3, xlab = "Date", ylab = "Return")
+legend("topleft", c("FB", "BA", "GOOG", "AMZN"), lty = 1:3, cex = 0.5)
+```
+
