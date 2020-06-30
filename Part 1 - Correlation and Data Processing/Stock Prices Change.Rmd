@@ -1,0 +1,52 @@
+---
+title: "Stock Prices Change"
+author: "Yiran Qin"
+output:
+  html_notebook: default
+  pdf_document: default
+---
+
+```{r}
+# import libraries
+library(dplyr) 
+library(readxl)
+library(ggplot2)
+library(quantmod)
+library(timetk)
+library(magrittr)
+library(Hmisc)
+```
+
+```{r}
+head(AMZN)
+```
+
+```{r}
+head(BA)
+```
+
+I can merge the two datasets together become a new dataset about the Covid-19 pandemic. But since the data type of date is not numeric, so I need to remove the column to calulate the correlation.
+```{r}
+Covid_data <- merge(Confirmed_Cases, Dead_Cases, by="Date")
+head(Covid_data)
+```
+
+```{r}
+new <- within(Covid_data, rm("Date"))
+new
+```
+
+```{r}
+rcorr(as.matrix(new))
+```
+
+After the correlation, I plot the stock market prices time series graph below. I used Amazon stock market data. 
+```{r}
+start <- as.Date("2020-02-01")
+end <- as.Date("2020-06-01")
+getSymbols("AMZN", src = "yahoo", from = start, to = end)
+```
+
+```{r}
+plot(AMZN[, "AMZN.Close"], main = "AMZN")
+```
