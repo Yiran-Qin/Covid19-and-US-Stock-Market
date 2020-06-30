@@ -1,0 +1,91 @@
+---
+title: "Missingness Imputation"
+author: "Yiran Qin"
+output: html_notebook
+---
+
+```{r}
+library(quantmod)
+library(magrittr)
+library(VIM)
+library(DMwR)
+library(FNN)
+```
+
+```{r}
+start <- as.Date("2020-03-01")
+end <- as.Date("2020-06-02")
+```
+
+According to the assignment requirements on the slides, I need to get Dow Jones index and 10 more companies data. Since they all used abbreviations on Yahoo finance, I will write their names down here. They are Apple, Goldman Sachs, Microsoft, Snapchat, Boeing, Google, Amazon, JP Morgan Chase, Alibaba and Nike.
+
+```{r}
+getSymbols(c("^DJI", "AAPL", "GS", "MSFT", "SNAP", "BA", "GOOG", "AMZN", "JPM", "BABA", "NKE"), src = "yahoo", from = start, to = end)
+```
+
+```{r}
+stocks <- as.xts(data.frame(DJI = DJI[, "DJI.Close"], AAPL = AAPL[, "AAPL.Close"], GS = GS[, "GS.Close"], MSFT = MSFT[, "MSFT.Close"], SNAP = SNAP[, "SNAP.Close"], BA = BA[, "BA.Close"], GOOG = GOOG[, "GOOG.Close"], AMZN = AMZN[, "AMZN.Close"], JPM = JPM[, "JPM.Close"], BABA = BABA[, "BABA.Close"], NKE = NKE[, "NKE.Close"]))
+```
+
+The reason why the Date begins with '2020-03-02' because '2020-03-01' is a Saturday, stock market closes on weekends, holidays and meltdown.I think this also the part of the reason we need to find out missing data.            
+```{r}
+head(stocks)
+```
+
+```{r}
+summary(stocks)
+```
+
+
+```{r}
+stocks1 <- knnImputation(stocks, k = 3, scale = T, meth = "median", distData = NULL)
+```
+
+I checked 'median' column as a example by using knnImputation function. It shows there is no missing values, so we need to check other columns for example 'Date'. First oF all, we need to add index as a variable in the dataset.
+
+```{r}
+stocks <- as.data.frame(stocks)
+stocks$Date <- row.names(stocks)
+cln <- ncol(stocks)
+stocks <- stocks[, c(cln, 1:(cln-1))]
+row.names(stocks) <- NULL
+```
+
+```{r}
+head(stocks)
+```
+```{r}
+summary(stocks)
+```
+
+I realized that the data type of "Date" is not numeric and different than other variables, that's why when I was using knnImputation function gave me 0 missing value. I removed the "Date" column, and use get.knn function on the new dataset. Finally, I got the knn index below.
+```{r}
+new <- within(stocks, rm("Date"))
+new
+```
+
+```{r}
+get.knn(new, k=5)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
