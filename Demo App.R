@@ -61,7 +61,8 @@ ui <- fluidPage(theme = shinytheme("darkly"),
            )
   
   ) # navbarPanel
-)  # fluidPage
+)  # fluidPage 
+#function done
 
 
 # This is the server of the App
